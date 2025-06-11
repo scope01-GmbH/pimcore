@@ -470,6 +470,7 @@ class Fieldcollections extends Data implements CustomResourcePersistingInterface
                                 $localizedValue = [
                                     'value' => $localizedValue->getValue(),
                                     'unit' => $localizedValue->getUnitId(),
+                                    'unitAbbr' => $localizedValue->getUnit()?->getAbbreviation()
                                 ];
                             } else {
                                 $localizedValue = $localizedFieldDefinition->getVersionPreview($localizedValue, $object, $params);
@@ -487,6 +488,7 @@ class Fieldcollections extends Data implements CustomResourcePersistingInterface
                             $value = [
                                 'value' => $value->getValue(),
                                 'unit' => $value->getUnitId(),
+                                'unitAbbr' => $value->getUnit()?->getAbbreviation()
                             ];
                         } else {
                             $value = $fd->getVersionPreview($item->$getter(), $object, $params);
