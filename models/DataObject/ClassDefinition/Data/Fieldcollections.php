@@ -466,17 +466,34 @@ class Fieldcollections extends Data implements CustomResourcePersistingInterface
                     //<<<ScopPatch
                             $language = $params['context']['language'] ?? null;
                             $localizedValue = $item->$getter($language);
+                            if ($localizedValue instanceof DataObject\Data\QuantityValue) {
+                                $localizedValue = [
+                                    'value' => $localizedValue->getValue(),
+                                    'unit' => $localizedValue->getUnitId(),
+                                ];
+                            } else {
+                                $localizedValue = $localizedFieldDefinition->getVersionPreview($localizedValue, $object, $params);
+                            }
                             $itemData[$localizedFieldDefinition->getName()] = [
                                     'title' => $localizedFieldDefinition->getTitle(),
-                                    'value' => $localizedFieldDefinition->getVersionPreview($localizedValue, $object, $params),
+                                    'value' => $localizedValue,
                                 ];
                             $itemData['localizedfields']['data'][$language][$localizedFieldDefinition->getName()] = $localizedValue;
                         }
                     } else {
                         $getter = 'get'.ucfirst($fd->getName());
+                        $value = $item->$getter();
+                        if ($value instanceof DataObject\Data\QuantityValue) {
+                            $value = [
+                                'value' => $value->getValue(),
+                                'unit' => $value->getUnitId(),
+                            ];
+                        } else {
+                            $value = $fd->getVersionPreview($item->$getter(), $object, $params);
+                        }
                         $itemData[$fd->getName()] = [
                             'title' => $fd->getTitle(),
-                            'value' => $fd->getVersionPreview($item->$getter(), $object, $params),
+                            'value' => $value
                         ];
                     }
                     //ScopPatch>>>
