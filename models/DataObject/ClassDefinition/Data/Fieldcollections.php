@@ -490,6 +490,8 @@ class Fieldcollections extends Data implements CustomResourcePersistingInterface
                                 'unit' => $value->getUnitId(),
                                 'unitAbbr' => $value->getUnit()?->getAbbreviation()
                             ];
+                        } elseif ($fd instanceof DataObject\ClassDefinition\Data\Relations\AbstractRelations) {
+                            $value = $fd->getDataForGrid($item->$getter(), $object, $params);
                         } else {
                             $value = $fd->getVersionPreview($item->$getter(), $object, $params);
                         }
