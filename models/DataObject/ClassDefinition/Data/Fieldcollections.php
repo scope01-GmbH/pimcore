@@ -460,10 +460,14 @@ class Fieldcollections extends Data implements CustomResourcePersistingInterface
                     if ($fd instanceof DataObject\ClassDefinition\Data\Localizedfields) {
                         foreach ($fd->getFieldDefinitions() as $localizedFieldDefinition) {
                             $getter = 'get'.ucfirst($localizedFieldDefinition->getName());
+                    //<<<ScopPatch
+                            $language = $params['context']['language'] ?? null;
+                            $localizedValue = $item->$getter($language);
                             $itemData[$localizedFieldDefinition->getName()] = [
-                                'title' => $localizedFieldDefinition->getTitle(),
-                                'value' => $localizedFieldDefinition->getVersionPreview($item->$getter(), $object, $params),
-                            ];
+                                    'title' => $localizedFieldDefinition->getTitle(),
+                                    'value' => $localizedFieldDefinition->getVersionPreview($localizedValue, $object, $params),
+                                ];
+                            $itemData['localizedfields']['data'][$language][$localizedFieldDefinition->getName()] = $localizedValue;
                         }
                     } else {
                         $getter = 'get'.ucfirst($fd->getName());
@@ -472,6 +476,7 @@ class Fieldcollections extends Data implements CustomResourcePersistingInterface
                             'value' => $fd->getVersionPreview($item->$getter(), $object, $params),
                         ];
                     }
+                    //ScopPatch>>>
                 }
             }
 
