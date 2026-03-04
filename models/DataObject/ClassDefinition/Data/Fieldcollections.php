@@ -463,17 +463,44 @@ class Fieldcollections extends Data implements CustomResourcePersistingInterface
                     //<<<ScopPatch
                             $language = $params['context']['language'] ?? null;
                             $localizedValue = $item->$getter($language);
+                            if (is_array($localizedValue) && count($localizedValue) > 0 && $localizedFieldDefinition instanceof \Pimcore\Model\DataObject\ClassDefinition\Data\Relations\AbstractRelations) {
+                                $relVal = [];
+                                foreach ($localizedValue as $element) {
+                                    if ($element instanceof \Pimcore\Model\Element\ElementInterface) {
+                                        $relVal[] = [
+                                            'id' => $element->getId(),
+                                            'fullpath' => $element->getRealFullPath(),
+                                        ];
+                                    }
+                                }
+                            } else {
+                                $relVal = $localizedFieldDefinition->getVersionPreview($localizedValue, $object, $params);
+                            }
                             $itemData[$localizedFieldDefinition->getName()] = [
                                     'title' => $localizedFieldDefinition->getTitle(),
-                                    'value' => $localizedFieldDefinition->getVersionPreview($localizedValue, $object, $params),
+                                    'value' => $relVal,
                                 ];
                             $itemData['localizedfields']['data'][$language][$localizedFieldDefinition->getName()] = $localizedValue;
                         }
                     } else {
                         $getter = 'get'.ucfirst($fd->getName());
+                        $notLocalValue = $item->$getter();
+                        if (is_array($notLocalValue) && count($notLocalValue) > 0 && $fd instanceof \Pimcore\Model\DataObject\ClassDefinition\Data\Relations\AbstractRelations) {
+                            $relVal = [];
+                            foreach ($notLocalValue as $element) {
+                                if ($element instanceof \Pimcore\Model\Element\ElementInterface) {
+                                    $relVal[] = [
+                                        'id' => $element->getId(),
+                                        'fullpath' => $element->getRealFullPath(),
+                                    ];
+                                }
+                            }
+                        } else {
+                            $relVal = $fd->getVersionPreview($notLocalValue, $object, $params);
+                        }
                         $itemData[$fd->getName()] = [
                             'title' => $fd->getTitle(),
-                            'value' => $fd->getVersionPreview($item->$getter(), $object, $params),
+                            'value' => $relVal,
                         ];
                     }
                     //ScopPatch>>>
